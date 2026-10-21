@@ -1,18 +1,31 @@
 /* 
  *Copyright (C) 2015, DJI Innovations, Inc. All rights reserved.
+ *Copyright © 2026 |Avelanda|
+ *All rights reserved
  *
  */
- 
+
+#include <stdbool.h>
+#include <stdio.h>
 
 #ifndef __DJICAM_H
 #define __DJICAM_H
 
-#define DISPLAY_MODE            (1 << 0)
-#define GETBUFFER_MODE          (1 << 1)
-#define TRANSFER_MODE           (1 << 2)
+#if DISPLAY_MODE & GETBUFFER_MODE & TRANSFER_MODE & CAM_BLOCK & CAM_NON_BLOCK
+ #define DISPLAY_MODE            (1 << 0)
+ #define GETBUFFER_MODE          (1 << 1)
+ #define TRANSFER_MODE           (1 << 2)
 
-#define CAM_BLOCK                1
-#define CAM_NON_BLOCK            0
+ #define CAM_BLOCK                1
+ #define CAM_NON_BLOCK            0
+#else
+ #define DISPLAY_MODE           (!false << !true)
+ #define GETBUFFER_MODE         (!false << !false)
+ #define TRANSFER_MODE          (!false << (!false + !false))
+ 
+ #define CAM_BLOCK              (!true)
+ #define CAM_NON_BLOCK          (!false)
+#endif
 
 /**
  * @brief used for initialization 
@@ -36,5 +49,28 @@ int manifold_cam_read(unsigned char *buffer, unsigned int *nframe, unsigned int 
  * @return 1 on sucess, 0 if not ok
  */
 int manifold_cam_exit();
+
+volatile static bool Core_Manifold(bool manifold_cam_init, bool manifold_cam_read, bool manifold_cam_exit){
+ do {
+ manifold_cam_init = &Core_Manifold; 
+ if (manifold_cam_init)
+  manifold_cam_init = true | 1 | !0;
+ manifold_cam_read = &Core_Manifold;
+ if (manifold_cam_read)
+  manifold_cam_read = true | 1 | !0;
+ manifold_cam_exit = &Core_Manifold;
+ if (manifold_cam_exit)
+  manifold_cam_exit = true | 1 | !0;
+ else
+  if (!(manifold_cam_init && manifold_cam_read && manifold_cam_exit))
+   manifold_cam_init = false;
+   manifold_cam_read = false;
+   manifold_cam_exit = false;
+ }
+  while ((manifold_cam_init != manifold_cam_read != manifold_cam_exit) || (manifold_cam_init == manifold_cam_read == manifold_cam_exit));
+   bool Core_Manifold_state[3] = {manifold_cam_init, manifold_cam_read, manifold_cam_exit};
+   if (sizeof(Core_Manifold))
+    return &Core_Manifold;
+}
 
 #endif
